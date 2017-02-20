@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ehcache updateCheck="false" name="hibernateCache">
+
+	<diskStore path="java.io.tmpdir/com/dcampus/labtables/ehcache/hibernate" />
+
+	<!-- DefaultCache setting. -->
+	<defaultCache maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="300" timeToLiveSeconds="600" 
+		overflowToDisk="true" maxEntriesLocalDisk="100000" />
+	
+	<cache name="com.dcmapus.labtables.modules.sys.entity.Dict" maxEntriesLocalHeap="10000" eternal="false" overflowToDisk="true" maxEntriesLocalDisk="1000" />
+	<cache name="com.dcmapus.labtables.modules.sys.entity.Perm" maxEntriesLocalHeap="10000" eternal="false" overflowToDisk="true" maxEntriesLocalDisk="1000" />
+	<cache name="com.dcmapus.labtables.modules.sys.entity.Role" maxEntriesLocalHeap="10000" eternal="false" overflowToDisk="true" maxEntriesLocalDisk="1000" />
+	<cache name="com.dcmapus.labtables.modules.sys.entity.RolePerm" maxEntriesLocalHeap="10000" eternal="false" overflowToDisk="true" maxEntriesLocalDisk="1000" />
+	<cache name="com.dcmapus.labtables.modules.sys.entity.User" maxEntriesLocalHeap="10000" eternal="false" overflowToDisk="true" maxEntriesLocalDisk="10000" />
+	<cache name="com.dcmapus.labtables.modules.sys.entity.UserRole" maxEntriesLocalHeap="10000" eternal="false" overflowToDisk="true" maxEntriesLocalDisk="10000" />
+	
+</ehcache>

@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/repository/pre-research/!svn/ver/2/lms/src/ehcache
+END
+ehcache-shiro.xml
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/repository/pre-research/!svn/ver/2/lms/src/ehcache/ehcache-shiro.xml
+END
+ehcache-hibernate-local.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/repository/pre-research/!svn/ver/2/lms/src/ehcache/ehcache-hibernate-local.xml
+END
+ehcache-custom.xml
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/repository/pre-research/!svn/ver/2/lms/src/ehcache/ehcache-custom.xml
+END

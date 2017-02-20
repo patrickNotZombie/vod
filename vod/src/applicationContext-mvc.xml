@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"  
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  
+    xmlns:mvc="http://www.springframework.org/schema/mvc"  
+    xmlns:context="http://www.springframework.org/schema/context"  
+    xsi:schemaLocation="http://www.springframework.org/schema/beans   
+                        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd  
+                        http://www.springframework.org/schema/mvc  
+                        http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd  
+                        http://www.springframework.org/schema/context   
+                        http://www.springframework.org/schema/context/spring-context-3.0.xsd">  
+                        
+	<description>Spring MVC Configuration</description>
+	
+    <!-- 启动Spring的组件自动扫描机制。Spring会自动扫描base-package指定的包中的类和子包里面类 -->  
+	<!-- 使用Annotation自动注册Bean,只扫描@Controller -->
+	<context:component-scan base-package="com.dcampus"><!-- base-package 如果多个，用“,”分隔 -->
+		<context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+	</context:component-scan>
+      
+	<!-- 默认的注解映射的支持，org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping -->
+    <!-- 启动SpringMVC的注解功能，它会自动注册HandlerMapping、HandlerAdapter、ExceptionResolver的相关实例 -->  
+    <mvc:annotation-driven/>
+    
+	<!-- 对静态资源文件（可为js、图片、css、html、jsp等各种资源）的访问， 
+	     将无法mapping到Controller的path交给default servlet handler处理
+	     相当于<mvc:resources mapping="/**" location="/"/>
+	<mvc:default-servlet-handler/>-->
+    <!-- 由于web.xml中设置是：由SpringMVC拦截所有请求，于是在读取静态资源文件的时候就会受到影响（说白了就是读不到）  
+    	  经过下面的配置，该标签的作用就是：所有页面中引用"/css/**"的资源，都会从"/resources/css/"里面进行查找
+    	  我们可以访问http://IP:8080/xxx/css/my.css和http://IP:8080/xxx/resources/css/my.css对比出来 
+    <mvc:resources mapping="/css/**" location="/resources/css/"/>
+    <mvc:resources mapping="/images/**" location="/resources/images/"/>
+    <mvc:resources mapping="/js/**" location="/resources/js/"/> -->
+    <mvc:resources mapping="/images/**" location="/resources/images/"/>
+    <mvc:resources mapping="/static/**" location="/resources/static/"/>
+    <mvc:resources mapping="/custom/**" location="/custom/"/>
+    <mvc:resources mapping="/KindEditorFile/**" location="/KindEditorFile/"/>
+	 
+	<!-- 设置请求映射编码，解决@ResponseBody乱码问题 -->
+	<bean class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter">
+        <property name="messageConverters">
+            <list>
+                <bean class="org.springframework.http.converter.StringHttpMessageConverter">
+                    <property name="supportedMediaTypes">
+                        <list>
+                            <value>text/plain;charset=UTF-8</value>
+                        </list>
+                    </property>
+                </bean>
+            </list>
+        </property>
+    </bean>
+    
+	<!-- 视图文件解析配置 -->
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">  
+        <!-- viewClass属性可以用来指定前台在解析数据时，所允许采用的手段。实际上其默认值就是JstlView -->  
+        <!-- 将来有需要的话，就可以在这里把JstlView改成其它的，如FreeMarkerView,VelocityView,TilesView -->  
+        <property name="viewClass" value="org.springframework.web.servlet.view.JstlView"/>
+  
+        <!-- 若Controller的方法返回"user/addSuccess",则SpringMVC自动找/WEB-INF/jsp/user/addSuccess.jsp -->  
+        <property name="prefix" value="/WEB-INF/jsp/"/>  
+        <property name="suffix" value=".jsp"/>  
+    </bean> 
+	
+	<!-- 定义无Controller的path<->view直接映射 -->
+	<mvc:view-controller path="/" view-name="redirect:/"/>
+	
+	<!-- 上传文件拦截，设置最大上传文件大小   10M=10*1024*1024(B)=10485760 bytes -->  
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">  
+        <!--<property name="maxUploadSize" value="10485760" /> max upload size. 10M=10*1024*1024(B)=10485760 bytes -->
+		<property name="defaultEncoding" value="UTF-8"/> 
+    </bean>
+	
+	<!-- 拦截器配置
+	<mvc:interceptors>
+	     GlobalInterceptor, 拦截所有请求，输出请求信息
+        <mvc:interceptor>
+             <mvc:mapping path="/**" />
+             <bean id="globalInterceptor" class="com.dcampus.labtables.modules.sys.interceptor.GlobalInterceptor" ></bean>
+        </mvc:interceptor>
+	</mvc:interceptors> -->
+	
+	<!-- 支持Shiro对Controller的方法级AOP安全控制 begin
+	<bean class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator" depends-on="lifecycleBeanPostProcessor">
+		<property name="proxyTargetClass" value="true" />
+	</bean>
+	<bean class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">  
+        <property name="exceptionMappings">  
+            <props>  
+                <prop key="org.apache.shiro.authz.UnauthorizedException">error/403</prop>
+            </props>  
+        </property>  
+    </bean>  
+    -->
+    
+</beans>

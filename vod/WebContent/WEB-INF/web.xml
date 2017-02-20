@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+	id="WebApp_ID" version="3.0">
+	<display-name>labtables</display-name>
+
+	<!-- 加载Spring配置文件 -->
+	<context-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>
+			classpath*:/applicationContext.xml
+			<!--  classpath*:/applicationContext-shiro.xml -->
+		</param-value>
+	</context-param>
+	<listener>
+		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+	</listener>
+	
+	<!--  
+	<context-param>
+		<param-name>cas_logout</param-name>
+		<param-value>https://security.scut.edu.cn/cas/logout</param-value>
+	</context-param>
+	-->
+
+	<!-- encoding filter -->
+	<filter>
+		<filter-name>encodingFilter</filter-name>
+		<filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+		<init-param>
+			<param-name>encoding</param-name>
+			<param-value>UTF-8</param-value>
+		</init-param>
+		<init-param>
+			<param-name>forceEncoding</param-name>
+			<param-value>true</param-value>
+		</init-param>
+	</filter>
+	<filter-mapping>
+		<filter-name>encodingFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+	
+	<!-- OpenEntityManagerInViewFilter -->
+	<filter>
+		<filter-name>openEntityManagerInViewFilter</filter-name>
+		<filter-class>org.springframework.orm.jpa.support.OpenEntityManagerInViewFilter</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>openEntityManagerInViewFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+	
+	<!-- cas filter -->
+	<filter>
+		<filter-name>CAS Filter</filter-name>
+		<filter-class>cn.edu.scut.cas.client.filter.CASFilter</filter-class>
+		<init-param>
+			<description>登录 cas 服务器的地址</description>
+			<param-name>login-url</param-name>
+			<param-value>https://security.scut.edu.cn/cas/login</param-value>
+		</init-param>
+		<init-param>
+			<description>退出 cas 服务器的地址</description>
+			<param-name>logout-url</param-name>
+			<param-value>https://security.scut.edu.cn/cas/logout</param-value>
+		</init-param>
+		<init-param>
+			<description>cas 服务器校验 ticket 的地址</description>
+			<param-name>validate-url</param-name>
+			<param-value>https://security.scut.edu.cn/cas/serviceValidate</param-value>
+		</init-param>
+	<!--<init-param>
+			<description>设定不需要保护的 uri，多个 uri 之间以半角逗号分隔</description>
+			<param-name>ignore-uri</param-name>
+			<param-value>/login.jsp,/localLoginFailure.jsp,/images/,/images/scroll/,/js/,/template/,/init/,/infocollect/,/infocollect/images/,/css/,/css/smoothness/,/css/smoothness/images/,/out/,/ckeditor_file/,/ckeditor_file/Image/,/oldpic/manage/,/oldpic/index/,/oldpic/index/images/,/oldpic/index/js/,/oldpic/index/css/,/oldpic/index/uploadify-v3.1/,/oldpic/manage/</param-value>
+		</init-param> -->
+		<init-param>
+			<description>服务名称，只有在同一个域名下配置多个服务才需要设置</description>
+			<param-name>server-name</param-name>
+		<!--<param-value>www.sklsbs.com:8889</param-value> -->
+		<!--<param-value>labtables.mytest.com:8889</param-value> -->
+		<param-value>211.66.86.131:8888</param-value><!-- -->
+		</init-param>
+	</filter>
+	<filter-mapping>
+		<filter-name>CAS Filter</filter-name>
+		<url-pattern>/casLogin</url-pattern>
+	</filter-mapping>
+	
+	<!-- Apache Shiro 
+	<filter>
+		<filter-name>shiroFilter</filter-name>
+		<filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+		<init-param>
+			<param-name>targetFilterLifecycle</param-name>
+			<param-value>true</param-value>
+		</init-param>
+	</filter>
+	<filter-mapping>
+		<filter-name>shiroFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+	-->
+	
+	<!-- tomcat自带default servlet 这里用户过滤静态资源 -->
+	<servlet-mapping>
+    	<servlet-name>default</servlet-name>
+    	<url-pattern>/images/**</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+    	<servlet-name>default</servlet-name>
+    	<url-pattern>/static/**</url-pattern>
+	</servlet-mapping>
+
+	<!-- Spring MVC -->
+	<servlet>
+		<servlet-name>springMVC</servlet-name>
+		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+		<init-param>
+			<param-name>contextConfigLocation</param-name>
+			<!-- 
+			1.不写,使用默认值:/WEB-INF/<servlet-name>-servlet.xml
+			2.<param-value>classpath*:/springMVC.xml</param-value>  
+			3.<param-value>/WEB-INF/springMVC.xml</param-value>
+			4.多个值用逗号分隔
+			 -->
+			<param-value>classpath*:/applicationContext-mvc.xml</param-value>
+		</init-param>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>springMVC</servlet-name>
+		 <!-- 
+        1、拦截*.do，例如：/user/add.do，弊端：所有的url都要以.action结尾。不会影响访问静态文件。
+		2、拦截/app/*，例如：/app/user/add，弊端：请求的url都要包含/app，@RequestMapping("/user/add")中不须要包含/app。
+		3、拦截/，例如：/user/add，弊端：对jpg,js,css静态文件的访问也被拦截不能正常显示。后面有解决办法。
+		4、拦截/*，可以走到Action中，但转发到jsp时再次被拦截，不能访问到jsp。
+         -->
+		<url-pattern>/</url-pattern>
+	</servlet-mapping>
+	
+	
+	<!-- 随机验证码 -->
+	<servlet>
+		<servlet-name>ValidateCodeServlet</servlet-name>
+		<servlet-class>com.dcampus.common.servlet.ValidateCodeServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>ValidateCodeServlet</servlet-name>
+		<url-pattern>/servlet/validateCodeServlet</url-pattern>
+	</servlet-mapping>
+	
+	<!-- KindEditor file upload   -->
+	<servlet>
+		<servlet-name>KindEditorUploadServlet</servlet-name>
+		<servlet-class>com.dcampus.common.servlet.KindEditorUploadServlet</servlet-class>
+        <load-on-startup>0</load-on-startup>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>KindEditorUploadServlet</servlet-name>
+		<url-pattern>/KindEditor/uploader</url-pattern>
+	</servlet-mapping>
+	
+	 
+	<!-- Session 配置 -->
+	<session-config>
+		<session-timeout>30</session-timeout>
+	</session-config>
+	
+	<!-- 错误 页面配置 -->
+	<error-page>
+		<exception-type>java.lang.Throwable</exception-type>
+		<location>/WEB-INF/jsp/error/500.jsp</location>
+	</error-page>
+	<error-page>
+		<error-code>500</error-code>
+		<location>/WEB-INF/jsp/error/500.jsp</location>
+	</error-page>
+	<error-page>
+		<error-code>404</error-code>
+		<location>/WEB-INF/jsp/error/404.jsp</location>
+	</error-page>
+	<error-page>
+		<error-code>401</error-code>
+		<location>/WEB-INF/jsp/error/401.jsp</location>
+	</error-page>
+	
+
+	<welcome-file-list>
+		<welcome-file>index.html</welcome-file>
+		<welcome-file>index.htm</welcome-file>
+		<welcome-file>index.jsp</welcome-file>
+		<welcome-file>default.html</welcome-file>
+		<welcome-file>default.htm</welcome-file>
+		<welcome-file>default.jsp</welcome-file>
+	</welcome-file-list>
+
+</web-app>

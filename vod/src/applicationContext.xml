@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jdbc="http://www.springframework.org/schema/jdbc"  
+	xmlns:jee="http://www.springframework.org/schema/jee"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:jpa="http://www.springframework.org/schema/data/jpa"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd
+		http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-3.2.xsd
+		http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-3.2.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.2.xsd
+		http://www.springframework.org/schema/data/jpa http://www.springframework.org/schema/data/jpa/spring-jpa-1.3.xsd"
+	default-lazy-init="true">
+
+
+  
+  
+  
+  
+     <!--  <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
+    	
+		<property name="driverClass" value="com.mysql.jdbc.Driver" />
+		<property name="jdbcUrl" value="jdbc:mysql://localhost:3306/userdb?useUnicode=true&amp;characterEncoding=UTF-8&amp;sessionVariables=storage_engine=InnoDB" />
+		
+		<property name="user" value="root" />
+		<property name="password" value="123456" />
+		 
+		连接池中保留的最大连接数。Default: 20
+		<property name="maxPoolSize" value="20" />
+		连接池中保留的最小连接数。Default: 20
+		<property name="minPoolSize" value="3" />
+		初始化时获取连接数，取值应在minPoolSize与maxPoolSize之间。Default: 3
+		<property name="initialPoolSize" value="3" />
+		
+		当连接池用完时客户端调用getConnection()后等待获取新连接的时间，超时后将抛出SQLException,如设为0则无限期等待。单位毫秒。Default: 0
+		<property name="checkoutTimeout" value="20000" />
+		
+		JDBC的标准参数，用以控制数据源内加载的PreparedStatements数量。但由于预缓存的statements属于单个connection而不是整个连接池。所以设置这个参数需要考虑到多方面的因素。如果maxStatements与maxStatementsPerConnection均为0，则缓存被关闭。Default: 0
+		<property name="maxStatements" value="100" />
+		maxStatementsPerConnection定义了连接池内单个连接所拥有的最大缓存statements数。Default: 0
+		<property name="maxStatementsPerConnection" value="20" />
+		
+		定义所有连接测试都执行的测试语句。在使用连接测试的情况下这个一显著提高测试速度。注意：测试的表必须在初始数据源的时候就存在。Default: null
+		<property name="preferredTestQuery" value="select 1"></property>
+		最大空闲时间,60秒内未使用则连接被丢弃。若为0则永不丢弃。Default: 0
+		<property name="maxIdleTime" value="25000" />
+		每18000秒检查所有连接池中的空闲连接。Default: 0
+		<property name="idleConnectionTestPeriod" value="18000" />
+		如果设为true那么在取得连接的同时将校验连接的有效性。Default: false
+		<property name="testConnectionOnCheckin" value="true" />
+		因性能消耗大请只在需要的时候使用它。如果设为true那么在每个connection提交的时候都将校验其有效性。建议使用idleConnectionTestPeriod或automaticTestTable等方法来提升连接测试的性能。Default: false
+		<property name="testConnectionOnCheckout" value="true" />
+		 
+    </bean> -->
+  
+  
+  
+  
+  
+  
+    
+    
+    <bean id="PropertyConfigurer"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations">
+			<list>
+				<value>classpath:jdbc.properties</value>
+			</list>
+		</property>
+	</bean>
+    
+    <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
+		<property name="driverClass" value="${jdbc.driverClassName}"></property>
+		<property name="jdbcUrl" value="${jdbc.url}"></property>
+		<property name="user" value="${jdbc.username}"></property>
+		<property name="password" value="${jdbc.password}"></property>
+		<property name="maxPoolSize" value="50"></property>
+		<property name="minPoolSize" value="20"></property>
+		<property name="initialPoolSize" value="20"></property>
+		<property name="maxIdleTime" value="300"></property> 
+		<property name="preferredTestQuery" value="${jdbc.preferredTestQuery}"></property>
+    </bean>
+    
+    
+    
+    
+    
+	<!-- 使用Annotation自动注册Bean，解决事物失效问题：在主容器中不扫描@Controller注解，在SpringMvc中只扫描@Controller注解。  -->
+	<context:component-scan base-package="com.dcampus"><!-- base-package 如果多个，用“,”分隔 -->
+		<context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+	</context:component-scan>
+	
+	<!-- 数据库方言配置，自动获取数据库方言 -->
+	<bean id="hibernateJpaVendorAdapter" class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
+		<property name="databasePlatform">
+			<bean factory-method="getDialect" class="com.dcampus.common.persistence.Hibernates">
+				<constructor-arg ref="dataSource"/>
+			</bean>
+		</property>
+	</bean>
+	
+	<!-- 配置 JPA Entity Manager -->
+	<bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean"> 
+		<property name="dataSource" ref="dataSource"/>
+		<property name="jpaVendorAdapter" ref="hibernateJpaVendorAdapter"/>
+		<property name="packagesToScan">
+		    <list>
+		        <!-- packagesToScan 如果多个，请在加一个value -->
+		        <value>com.dcampus.vod</value>
+		    </list>
+		</property>
+		<property name="jpaProperties">
+			<props>
+				<prop key="hibernate.hbm2ddl.auto">update</prop><!--启动时更新数据库--> 
+				<prop key="hibernate.query.substitutions">
+					true 1, false 0
+				</prop>
+				<prop key="hibernate.cache.region.factory_class">org.hibernate.cache.ehcache.EhCacheRegionFactory</prop>
+				<prop key="net.sf.ehcache.configurationResourceName">ehcache/ehcache-hibernate-local.xml</prop>
+				<prop key="hibernate.ejb.naming_strategy">org.hibernate.cfg.ImprovedNamingStrategy</prop>
+				<prop key="hibernate.cache.use_query_cache">true</prop>
+				<prop key="hibernate.search.default.directory_provider">filesystem</prop>
+				<prop key="hibernate.search.default.indexBase">indexes</prop>
+				<prop key="hibernate.show_sql">false</prop>
+				<prop key="hibernate.format_sql">false</prop>
+				<!-- <prop key="hibernate.max_fetch_depth">3</prop> 		
+				<prop key="hibernate.hbm2ddl.auto">false true</prop> -->		
+			</props>
+		</property>
+	</bean>
+	
+    <!-- 配置 Spring Data JPA， base-package 如果多个，用“,”分隔 -->
+    <!-- 各种dao和service -->
+ 	<jpa:repositories base-package="com.dcampus"  transaction-manager-ref="transactionManager"
+ 		entity-manager-factory-ref="entityManagerFactory"/>
+
+	<!-- 配置 JPA Transaction -->
+	<bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+		<property name="entityManagerFactory" ref="entityManagerFactory"/>
+	</bean>
+
+	<!-- 配置 Annotation 驱动，定义事务
+	  proxy-target-class="true" : 基于类的代理，需要cglib.jar支持
+	  proxy-target-class="false" : 基于接口的代理
+	    接口事物定义比类事物定义优先执行
+	 -->
+	<tx:annotation-driven transaction-manager="transactionManager" proxy-target-class="true"/>
+	
+	<!-- 配置 JSR303 Bean Validator 定义 -->
+	<bean id="validator" class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean" />
+
+	<!-- 自定义 Ehchche -->
+	<bean id="customEhcacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
+		<property name="configLocation" value="classpath:ehcache/ehcache-custom.xml" />
+	</bean>
+
+</beans>
