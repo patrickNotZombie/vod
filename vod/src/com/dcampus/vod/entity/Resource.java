@@ -40,6 +40,14 @@ public class Resource extends BaseEntity {
 	@Column(name = "name")
 	private String name;
 	
+	/**资源扩展名*/
+	@Column(name = "file_extension")
+	private String fileExt;
+	
+	/**上传是否完成,0-未完成 1-已完成*/
+	 @Column(name = "finish_sign")
+	 private Integer finishSign;
+	
 	/**存储路径*/
 	@Column(name = "filepath")
 	private String filepath;
@@ -51,6 +59,14 @@ public class Resource extends BaseEntity {
 	/** 资源创建时间 **/
 	@Column(name = "creation_date")
 	private Timestamp creationDate;
+	
+	public Resource() {
+		
+	}
+	
+	public Resource(Integer id) {
+		this.id = id;
+	}
 
 	public Integer getId() {
 		return id;
@@ -76,6 +92,14 @@ public class Resource extends BaseEntity {
 		this.name = name;
 	}
 
+	public String getFileExt() {
+		return fileExt;
+	}
+
+	public void setFileExt(String fileExt) {
+		this.fileExt = fileExt;
+	}
+
 	public String getFilepath() {
 		return filepath;
 	}
@@ -98,6 +122,14 @@ public class Resource extends BaseEntity {
 
 	public void setCreationDate(Timestamp creationDate) {
 		this.creationDate = creationDate;
+	}
+
+	public Integer getFinishSign() {
+		return finishSign;
+	}
+
+	public void setFinishSign(Integer finishSign) {
+		this.finishSign = finishSign;
 	}
 	
 	

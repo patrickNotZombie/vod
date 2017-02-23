@@ -40,7 +40,7 @@ public class ResourceService extends BaseService{
 	 * @return resource 返回此weblibId对应的资源
 	 */
 	public Resource getResourceByWeblibId(Long weblibId) {
-		return genericDao.get(Resource.class, weblibId);
+		return genericDao.findFirst("from Resource r where r.weblibId = ?", weblibId);
 	}
 	
 	

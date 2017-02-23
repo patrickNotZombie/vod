@@ -20,42 +20,6 @@ public class Global {
 	 */
 	private static PropertiesLoader propertiesLoader;
 	
-	/**
-	 * 超级管理员路径
-	 */
-	public static final String ADMIN_PATH = "/admin";
-	
-	/**
-	 * 设置内部科研人员中心访问路径
-	 * 1. 修改本类 MEMBER_PATH 常量
-	 * 2. 修改 applicationContext-shiro.xml 中的 shiroFilter
-	 * 3. 修改 decorators.xml 中的 default
-	 * 4. 修改 spring-mvc.xml 中的 mvc:view-controller
-	 */
-	public static final String MEMBER1_PATH = "/member1";
-
-	/**
-	 * 设置外部科研人员中心访问路径
-	 * 1. 修改本类 MEMBER_PATH 常量
-	 * 2. 修改 applicationContext-shiro.xml 中的 shiroFilter
-	 * 3. 修改 decorators.xml 中的 default
-	 * 4. 修改 spring-mvc.xml 中的 mvc:view-controller
-	 */
-	public static final String MEMBER2_PATH = "/member2";
-
-	/**
-	 * 本用户访问路径
-	 * 1. 修改本类 PRINCIPAL_PATH 常量
-	 * 2. 修改 applicationContext-shiro.xml 中的 shiroFilter
-	 * 3. 修改 decorators.xml 中的 default
-	 * 4. 修改 spring-mvc.xml 中的 mvc:view-controller
-	 */
-	public static final String PRINCIPAL_PATH = "/principal";
-	
-	/**
-	 * 设置访问URL后缀
-	 */
-	public static final String URL_SUFFIX = ".html";
 	
 	/**
 	 * 获取配置
@@ -69,19 +33,6 @@ public class Global {
 
 	/////////////////////////////////////////////////////////
 	
-	public static String getAdminPath() {
-		return ADMIN_PATH;
-	}
-	public static String getMember1Path() {
-		return MEMBER1_PATH;
-	}
-	public static String getMember2Path() {
-		return MEMBER2_PATH;
-	}
-	public static String getPrincipalPath() {
-		return PRINCIPAL_PATH;
-	}
-
 	public static String getCompanyName() {
 		return getConfig("companyName");
 	}
@@ -100,6 +51,9 @@ public class Global {
 		return getConfig("FileRootPath") + "/temp";
 	}
 	
+	public static String getAllowedExtensionsMedia(){
+		return getConfig("AllowedExtensionsMedia");
+	}
 
 	public static Long getAttachSize(String key) {
 		return Long.parseLong(getConfig(key));
@@ -119,4 +73,38 @@ public class Global {
 			return fileSize + "B";
 		}
 	}
+	
+	//获取weblib地址，用户名，密码，weblib groupId
+	public static String getWeblibUrl(){
+		return getConfig("webliburl");
+	}
+	
+	public static String getWeblibLoginUrl() {
+		return getConfig("weblibLoginUrl");
+	}
+	
+	public static String getWeblibSelectUrl() {
+		return getConfig("selectidActionUrl");
+	}
+	
+	public static String getWeblibDownloadUrl() {
+		return getConfig("weblibDownloadUrl");
+	}
+	public static String getWelbibUsername(){
+		return getConfig("weblibUsername");
+	}
+	public static String getWelbibPassword(){
+		return getConfig("weblibPasswd");
+	}
+	public static Integer getWeblibGroupId(){
+		return Integer.parseInt(getConfig("weblibGroupId"));
+	} 
+	
+	/**
+	 * 获取lms在weblib中的柜子Id
+	 */
+	public static Long getLmsGroupId(){
+		return Long.parseLong(getConfig("LmsGroupId").trim());
+	}
+	
 }

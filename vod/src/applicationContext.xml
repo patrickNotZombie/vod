@@ -156,5 +156,7 @@
 	<bean id="customEhcacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
 		<property name="configLocation" value="classpath:ehcache/ehcache-custom.xml" />
 	</bean>
+	
+	
 
 </beans>
