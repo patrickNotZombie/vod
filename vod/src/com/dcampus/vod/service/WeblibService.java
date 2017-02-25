@@ -6,6 +6,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
@@ -152,83 +154,20 @@ public class WeblibService extends BaseService{
 		}
 		return flag;
 	}
-//	String loginActionUrl = Global.getWeblibLoginUrl();
-//	String downloadActionUrl = Global.getWeblibDownloadUrl();
-//	Header cookie = null;
-//	
-//	
-//	/**建立weblib访问*/
-//	CloseableHttpClient weblibClient = HttpClients.createDefault();
-//	
-//	   
-//	/**
-//	 * description:登录weblib,执行查询用户action
-//	 * @param 在Global.xml中配置的用户名和密码登录weblib
-//	 * @return
-//	 */
-//	public void loginWeblib(){
-//		String username = Global.getWelbibUsername();
-//		String passwd = Global.getWelbibPassword();
-//		
-//		HttpPost loginPost = new HttpPost(weblibUrl+loginActionUrl);
-//		List<NameValuePair> loginParams = new ArrayList<NameValuePair>();
-//		loginParams.add(new BasicNameValuePair("account", username));
-//		loginParams.add(new BasicNameValuePair("password", passwd));
-//		UrlEncodedFormEntity uefEntity;
-//		try {
-//			uefEntity = new UrlEncodedFormEntity(loginParams,"UTF-8");
-//			loginPost.setEntity(uefEntity);
-//			loginPost.addHeader("Connection", "Keep-Alive");
-//			CloseableHttpResponse loginResponse = weblibClient.execute(loginPost);
-//			cookie = loginResponse.getFirstHeader("Set-Cookie");
-//			try {
-//				HttpEntity responseEntiry = loginResponse.getEntity();
-//				//Cookie cookieStore = weblibClient.
-//				System.out.println("用户: "+ username +"  cookie信息: "+ cookie.toString());
-//				System.out.println(loginResponse.getStatusLine().getStatusCode());
-//				System.out.println(loginResponse.getEntity().getContent().toString());	
-//				if(loginResponse.getStatusLine().getStatusCode()==HttpStatus.SC_OK){
-//					if(responseEntiry!=null){
-//						BufferedReader rd = new BufferedReader(new InputStreamReader(responseEntiry.getContent()));
-//						
-//						//解析返回的Json数据
-//						String line = null;
-//						JSONObject loginObject;
-//						JSONObject memObject;
-//						
-//						while((line=rd.readLine())!=null){
-//							if(!line.isEmpty()){
-//								loginObject = new JSONObject(line);
-//								String loginValue = loginObject.getString("members");
-//								System.out.println(loginValue);
-//								String loginValueOb = loginValue.substring(loginValue.indexOf("[")+1,loginValue.lastIndexOf("]"));
-//								
-//								memObject = new JSONObject(loginValueOb);
-//								int memId = memObject.getInt("id");
-//
-//							}
-//						}
-//					}
-//				}else{
-//					System.out.println("=.=出问题了！");
-//				}
-//			} finally {
-//				loginResponse.close();
-//			}
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
-//	}
 		
 	
 	/**
 	 * description:向weblib请求下载资源
 	 * @param filewid 资源在weblib中对应的id
-	 * @return filename 下载成功返回资源名字,下载失败返回null
+	 * @return  下载成功返回资源名字和文件大小，以分号分隔,下载失败返回null
 	 */
 	public String downloadFromWeblib(Long filewid){
 		boolean over = false;
 		String filename = null;
+		/**解码后的文件名*/
+		String new_filename = null;
+		/**下载的文件大小，以KB为单位*/
+		Long filesize = null;
 		CloseableHttpResponse downResponse = null;
 		/** 资源存放路径*/
 		String downUrl = Global.getFileRootPath();
@@ -236,16 +175,17 @@ public class WeblibService extends BaseService{
 			HttpGet downGet = new HttpGet(weblibUrl + downloadActionUrl +"?id=" + filewid);
 			downGet.addHeader("Connection", "Keep-Alive");
 			downResponse = weblibClient.execute(downGet);
-			String temp = downResponse.getFirstHeader("Content-Disposition").getValue();
-			String[] args = temp.split("\"");
-			filename = args[1];	
-			System.out.println(filename);
-			
-			
 			StatusLine statusLine = downResponse.getStatusLine();
-			System.out.println(statusLine.getStatusCode());
+			System.out.println("从weblib下载资源请求状态码:" + statusLine.getStatusCode());
 			if(statusLine.getStatusCode() == 200){
-				File file = new File(downUrl+filename);
+				String temp = downResponse.getFirstHeader("Content-Disposition").getValue();
+				String[] args = temp.split("\"");
+				filename = args[1];	
+				//System.out.println(filename);
+				/**获得解码后的文件名*/
+				new_filename = URLDecoder.decode(filename, "UTF-8");
+				System.out.println("从weblib下载资源名称:" + new_filename);
+				File file = new File(downUrl+new_filename);
 				FileOutputStream outputStream = new FileOutputStream(file);
 				InputStream inputStream = downResponse.getEntity().getContent();
 				byte length[] = new byte[1024];
@@ -255,8 +195,11 @@ public class WeblibService extends BaseService{
 				}
 				outputStream.flush();
 				outputStream.close();
+				//打印文件大小
+				System.out.println("从weblib下载资源KB大小:" + file.length());
+				filesize = file.length()/1024;
+				over = true;
 			}	
-			over = true;
 		}catch(Exception e){
 			e.printStackTrace();
 			over = false;
@@ -267,8 +210,8 @@ public class WeblibService extends BaseService{
 				e.printStackTrace();
 			}
 		}
-		if(over = true){
-			return filename;
+		if(over == true){
+			return new_filename + ";" + filesize;
 		}else{
 			return null;
 		}

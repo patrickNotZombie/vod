@@ -14,6 +14,8 @@ import java.util.Locale;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.dcampus.vod.util.FileEncoder;
+
 /**
  * 
  * 提供断点续传下载的工具类
@@ -29,10 +31,11 @@ public class FileServerUtil {
 	 * @param filename 文件名
 	 * @param request http请求
 	 * @param response http响应
+	 * @param isInline 
 	 * @throws IOException
 	 */
 	public static void output(File file, String filename, HttpServletRequest request,
-			HttpServletResponse response) throws IOException{
+			HttpServletResponse response, int isInline) throws IOException{
 		
 		if(!file.isFile())
 			throw new FileNotFoundException();
@@ -91,9 +94,25 @@ public class FileServerUtil {
 		}
 
 		response.setContentType("application/octet-stream");
+//		if(filename != null){
+//			response.setHeader("Content-Disposition",
+//                "attachment; filename=" + new String(filename.getBytes("gbk"), "iso-8859-1"));
+//		}
 		if(filename != null){
-			response.setHeader("Content-Disposition",
-                "attachment; filename=" + new String(filename.getBytes("gbk"), "iso-8859-1"));
+			String toFileName = filename;
+			try {
+				toFileName = FileEncoder.encode(filename, request.getHeader("User-agent"));
+			} catch (Exception e) {
+				toFileName=" filename=" + new String(filename.getBytes("gbk"), "iso-8859-1");
+			}
+			if (isInline == 1) {
+				response.setHeader("Content-Disposition",
+		                "inline; " + toFileName);
+			} else {
+				response.setHeader("Content-Disposition",
+		                "attachment; " + toFileName);
+			}
+			
 		}
 		/*String contentType = file.getContentType();
 		if (contentType != null) {

@@ -52,7 +52,7 @@ public class Resource extends BaseEntity {
 	@Column(name = "filepath")
 	private String filepath;
 	
-	/** 资源大小，以K为单位 **/
+	/** 资源大小，以KB为单位 **/
 	@Column(name = "size")
 	private Long size;
 

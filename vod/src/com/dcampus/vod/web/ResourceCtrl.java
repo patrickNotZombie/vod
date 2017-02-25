@@ -17,6 +17,7 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
@@ -64,18 +65,23 @@ public class ResourceCtrl extends BaseController {
 	 * @param response
 	 * @return
 	 */
-	@RequestMapping(value = "download")
+	@RequestMapping(value = "download", produces = "application/json; charset=UTF-8")
 	@ResponseBody
-	public String download(String id, Model model, RedirectAttributes redirectAttributes,
+	public String download(Model model, RedirectAttributes redirectAttributes,
 	HttpServletRequest request, HttpServletResponse response){
-		Long weblibId = Long.parseLong(id);
+		Long weblibId = ServletRequestUtils.getLongParameter(request, "id", 0L);
+		Integer isInline = ServletRequestUtils.getIntParameter(request, "isInline", 0);
 		JsonUtil ju = new JsonUtil();
 		
 		Resource resource = resourceService.getResourceByWeblibId(weblibId);
 		if(resource == null) {
 			weblibService.loginWeblib();
-			String filename = weblibService.downloadFromWeblib(weblibId);
-			if(filename != null && filename != ""){
+			String fileInfo = weblibService.downloadFromWeblib(weblibId);
+			if(fileInfo != null && fileInfo != ""){
+				String[] infoTemp = fileInfo.split(";");
+				//System.out.println(infoTemp[0] + "   "+infoTemp[1]);
+				String filename = infoTemp[0].trim();
+				Long filesize = Long.parseLong(infoTemp[1].trim());
 				String[] temp = filename.split("\\.");
 				String name = temp[0];
 				String fileExt = temp[1];
@@ -83,6 +89,7 @@ public class ResourceCtrl extends BaseController {
 				re.setFileExt(fileExt);
 				re.setName(name);
 				re.setWeblibId(weblibId);
+				re.setSize(filesize);
 				try{
 					resourceService.saveOrUpdateResource(re);
 				}catch(Exception e) {
@@ -96,9 +103,9 @@ public class ResourceCtrl extends BaseController {
 				return jsonUtil.bean2json(ju);
 			}
 		}
-		_download(weblibId, request, response);
+		_download(weblibId, isInline, request, response);
 		ju.setResult("success");
-		ju.setMessage("");
+		ju.setMessage("下載成功！");
 		return jsonUtil.bean2json(ju);
 	}
 
@@ -109,7 +116,7 @@ public class ResourceCtrl extends BaseController {
 	 * @param request
 	 * @param response
 	 */
-	public void _download(Long weblibId, HttpServletRequest request, HttpServletResponse response) {
+	public void _download(Long weblibId, int isInline, HttpServletRequest request, HttpServletResponse response) {
 		Resource resource = resourceService.getResourceByWeblibId(weblibId);
 		String fileExt = resource.getFileExt();
 		String name = resource.getName();
@@ -119,7 +126,7 @@ public class ResourceCtrl extends BaseController {
 		    File file = new File(new URI(DownloadUtil.getFileFullPath(resource)));   
 			if(file != null && file.exists()) {					
 				filename = filename.replaceAll(" ", "");				
-				FileServerUtil.output(file, filename, request, response);
+				FileServerUtil.output(file, filename, request, response, isInline);
 			}
 		} catch (IOException | URISyntaxException e) {
 			// TODO Auto-generated catch block

@@ -16,6 +16,7 @@
 	<!-- 使用Annotation自动注册Bean,只扫描@Controller -->
 	<context:component-scan base-package="com.dcampus"><!-- base-package 如果多个，用“,”分隔 -->
 		<context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+		<context:exclude-filter type="annotation" expression="org.springframework.stereotype.Service"/>
 	</context:component-scan>
       
 	<!-- 默认的注解映射的支持，org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping -->
@@ -42,16 +43,30 @@
         <property name="messageConverters">
             <list>
                 <bean class="org.springframework.http.converter.StringHttpMessageConverter">
-                    <property name="supportedMediaTypes">
-                        <list>
-                            <value>text/plain;charset=UTF-8</value>
-                        </list>
-                    </property>
+                <constructor-arg>  
+                    <bean id="defaultCharset" class="java.nio.charset.Charset" factory-method="forName">  
+                        <constructor-arg value="UTF-8"/>  
+                    </bean>  
+                </constructor-arg>
+                 <property name="supportedMediaTypes">    
+                    <list>    
+                        <bean class="org.springframework.http.MediaType">    
+                            <constructor-arg index="0" value="text" />    
+                            <constructor-arg index="1" value="plain" />    
+                            <constructor-arg index="2" value="UTF-8" />    
+                        </bean>    
+                        <bean class="org.springframework.http.MediaType">    
+                              <constructor-arg index="0" value="application"/>    
+                  			  <constructor-arg index="1" value="json"/>    
+                  			  <constructor-arg index="2" value="UTF-8"/>   
+                        </bean>   
+                    </list>   
+                       
+                </property>    
                 </bean>
             </list>
         </property>
     </bean>
-    
 	<!-- 视图文件解析配置 -->
     <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">  
         <!-- viewClass属性可以用来指定前台在解析数据时，所允许采用的手段。实际上其默认值就是JstlView -->  
@@ -81,17 +96,18 @@
         </mvc:interceptor>
 	</mvc:interceptors> -->
 	
-	<!-- 支持Shiro对Controller的方法级AOP安全控制 begin
+	<!-- 支持Shiro对Controller的方法级AOP安全控制 begin 
 	<bean class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator" depends-on="lifecycleBeanPostProcessor">
 		<property name="proxyTargetClass" value="true" />
-	</bean>
+	</bean>  
 	<bean class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">  
         <property name="exceptionMappings">  
             <props>  
                 <prop key="org.apache.shiro.authz.UnauthorizedException">error/403</prop>
             </props>  
         </property>  
-    </bean>  
-    -->
+    </bean> --> 
+    
+
     
 </beans>
