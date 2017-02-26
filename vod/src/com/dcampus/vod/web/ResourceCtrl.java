@@ -27,12 +27,12 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.dcampus.common.config.Global;
 import com.dcampus.common.generic.GenericService;
-import com.dcampus.common.util.FileServerUtil;
 import com.dcampus.common.web.BaseController;
 import com.dcampus.vod.entity.Resource;
 import com.dcampus.vod.service.ResourceService;
 import com.dcampus.vod.service.WeblibService;
 import com.dcampus.vod.util.DownloadUtil;
+import com.dcampus.vod.util.FileServerUtil;
 import com.dcampus.vod.util.JsonUtil;
 
 /**
@@ -80,6 +80,7 @@ public class ResourceCtrl extends BaseController {
 			if(fileInfo != null && fileInfo != ""){
 				String[] infoTemp = fileInfo.split(";");
 				//System.out.println(infoTemp[0] + "   "+infoTemp[1]);
+				logger.info("从weblib下载文件名为：" + infoTemp[0] + ";文件大小为KB:"+infoTemp[1]);
 				String filename = infoTemp[0].trim();
 				Long filesize = Long.parseLong(infoTemp[1].trim());
 				String[] temp = filename.split("\\.");
